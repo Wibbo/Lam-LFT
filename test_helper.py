@@ -1,3 +1,5 @@
+import os
+import csv
 
 def format_postcode(raw_code):
     """
@@ -48,3 +50,16 @@ def get_test_outcome(test_code):
         return 'Awaiting'
     else:
         return 'Unknown'
+
+
+def create_appt_csv_from_list(file_name, appt_list):
+
+    dir_name = 'data/'
+    file = os.path.join(dir_name, file_name + '.csv')
+
+    with open(file, 'w', newline='') as f:
+        wr = csv.writer(f)
+        wr.writerow(['Office', 'Diary', 'Date', 'Start Time', 'Name',
+                     'Email Address', 'Telephone Number', 'Postcode',
+                     'Date of Birth', 'Reasons', 'Ethnicity', 'Notes'])
+        wr.writerows(appt_list)
