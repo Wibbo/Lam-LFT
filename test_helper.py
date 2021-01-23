@@ -1,4 +1,3 @@
-import math
 
 def format_postcode(raw_code):
     """
@@ -13,8 +12,8 @@ def format_postcode(raw_code):
 
     raw_code = raw_code.replace(" ", "")
     code_length = len(raw_code)
-    postfix = raw_code[code_length-3:].upper()
-    prefix = raw_code[:code_length-3].upper()
+    postfix = raw_code[code_length - 3:].upper()
+    prefix = raw_code[:code_length - 3].upper()
 
     return prefix + " " + postfix
 
@@ -26,13 +25,15 @@ def get_test_outcome(test_code):
     Returns: A textual description of the test outcome.
     """
     test_code = str(test_code)
-    
+
     if test_code is None:
         return 'Awaiting'
-    
-    if test_code == 'nan':
+
+    # TODO If the result is No_Value then we should text to see if the
+    # date has passed and assume a negative result if it has.
+    if test_code == 'No_Value':
         return 'Awaiting'
-    
+
     test_code = test_code.lower()
 
     if test_code == 'zz89':
