@@ -32,13 +32,17 @@ data_file.sort_values(by=['Name', 'Date', 'Start Time', 'Postcode'], inplace=Tru
 postcodes = pd.read_csv('data/postcodes.csv', encoding='latin1')
 wards = pd.read_csv('data/wards.csv', encoding='latin1')
 
-
-
 output_appt = ''
 previous_appt = ''
 
-
 def create_appt(appt_row):
+
+    postcode = th.get_test_postcode(appt_row['Postcode'])
+    ward = th.get_ward_from_postcode(postcode, postcodes, wards)
+
+
+
+
     appointment = [None] * 14
     appointment[0] = appt_row['Office']
     appointment[1] = appt_row['Diary']
@@ -47,12 +51,12 @@ def create_appt(appt_row):
     appointment[4] = appt_row['Name']
     appointment[5] = appt_row['Email Address']
     appointment[6] = appt_row['Telephone Number']
-    appointment[7] = th.get_test_postcode(appt_row['Postcode'])
+    appointment[7] = postcode
     appointment[8] = appt_row['Date of Birth']
     appointment[9] = appt_row['Reasons']
     appointment[10] = appt_row['Ethnicity']
     appointment[11] = th.get_test_outcome(appt_row['Notes'])
-    appointment[12] = appt_row['Ward']
+    appointment[12] = ward
     appointment[13] = appt_row['Distance']
 
     return appointment

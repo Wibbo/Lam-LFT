@@ -24,10 +24,27 @@ def format_postcode(raw_code):
 
 def get_ward_from_postcode(pc_to_find, postcodes, wards):
 
-
     result = postcodes.loc[postcodes['Postcode'] == pc_to_find]
+    ward_name = ''
 
-    pass
+    if result.size > 0:
+        ward_num = result['Admin_ward_code'].values[0]
+        ward = wards.loc[wards['ward code'] == ward_num]
+
+        if ward.size == 0:
+            ward_name = 'Outside Lambeth'
+        else:
+            ward_name = ward.values[0][1]
+    else:
+        ward_name = 'Postcode not found'
+
+    return ward_name
+
+
+
+
+
+
 
 def get_test_postcode(postcode):
     """
