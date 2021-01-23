@@ -11,9 +11,12 @@ with open('./data/current.csv', newline='') as csv_file:
                             quoting=csv.QUOTE_ALL, skipinitialspace=True)
 
     # Skip the header in the csv file.
-    next(csv_reader)
+    head = next(csv_reader)
+    head.append(['Ward', 'Distance'])
 
     for row in csv_reader:
+        row.append('Ward')
+        row.append('Distance')
         app_list.append(row)
 
 # Use comprehensions to replace blank fields and 'N/A' with No_Value.
@@ -26,13 +29,17 @@ th.create_appt_csv_from_list('complete', new_list)
 data_file = pd.read_csv('data/complete.csv', encoding='latin1')
 data_file.sort_values(by=['Name', 'Date', 'Start Time', 'Postcode'], inplace=True, ascending=True)
 
+postcodes = pd.read_csv('data/postcodes.csv', encoding='latin1')
+wards = pd.read_csv('data/wards.csv', encoding='latin1')
+
+
 
 output_appt = ''
 previous_appt = ''
 
 
 def create_appt(appt_row):
-    appointment = [None] * 12
+    appointment = [None] * 14
     appointment[0] = appt_row['Office']
     appointment[1] = appt_row['Diary']
     appointment[2] = appt_row['Date']
@@ -40,17 +47,23 @@ def create_appt(appt_row):
     appointment[4] = appt_row['Name']
     appointment[5] = appt_row['Email Address']
     appointment[6] = appt_row['Telephone Number']
-    appointment[7] = appt_row['Postcode']
+    appointment[7] = th.get_test_postcode(appt_row['Postcode'])
     appointment[8] = appt_row['Date of Birth']
     appointment[9] = appt_row['Reasons']
     appointment[10] = appt_row['Ethnicity']
-    appointment[11] = th.get_test_outcome(appt_row['Notes']) 
+    appointment[11] = th.get_test_outcome(appt_row['Notes'])
+    appointment[12] = appt_row['Ward']
+    appointment[13] = appt_row['Distance']
 
     return appointment
 
 
+
+
 def update_appt(current_row, previous_row):
     index = 0
+
+    current_row[11] = th.get_test_outcome(current_row[11])
 
     for col_value in current_row:
         if col_value == 'No_Value':
@@ -69,7 +82,6 @@ previous_id = None
 
 # Loop through every appointment.
 for index, row in data_file.iterrows():
-
     #TODO Just use name for now.
     current_id = row['Name'].lower()
     current = row
@@ -82,6 +94,7 @@ for index, row in data_file.iterrows():
             appt = update_appt(current, previous)
         else:
             appt = create_appt(current)
+
 
         final_list.append(appt)
 
