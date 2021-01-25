@@ -1,14 +1,14 @@
 import os
 import csv
+import pgeocode
 
-def format_postcode(raw_code, default):
+def format_postcode(raw_code, default='No_Value'):
     """
     Ensures the supplied postcode is correctly formatted.
     Args:
         raw_code: The postcode from the appointments file.
         default:  A value that is passed through without alteration.
     Returns: A correctly formatted postcode.
-
     """
     if raw_code is None:
         return 'Unknown'
@@ -26,24 +26,6 @@ def format_postcode(raw_code, default):
 
     return full_code.upper()
 
-
-def get_ward_from_postcode(pc_to_find, postcodes, wards):
-
-    result = postcodes.loc[postcodes['Postcode'] == pc_to_find]
-    ward_name = ''
-
-    if result.size > 0:
-        ward_num = result['Admin_ward_code'].values[0]
-        ward = wards.loc[wards['ward code'] == ward_num]
-
-        if ward.size == 0:
-            ward_name = 'Outside Lambeth'
-        else:
-            ward_name = ward.values[0][1]
-    else:
-        ward_name = 'Postcode not found'
-
-    return ward_name
 
 def get_test_outcome(test_code):
     """
@@ -102,3 +84,29 @@ def create_appt_csv_from_list(file_name, appt_list, header=None):
         else:
             wr.writerow(header)
         wr.writerows(appt_list)
+
+
+def get_postcode_data(postcode):
+    """
+    Validates a UK postcode by performing a lookup using the pgeocode module.
+    Only works for UK postcodes.
+    Args:
+        postcode: The postcode to validate.
+    Returns: A pgeocode object if the postcode is found and None otherwise.
+    """
+    if len(postcode.strip()) == 0:
+        return None
+
+    geo_pcode = pgeocode.Nominatim('GB')
+    postcode = format_postcode(postcode, 'No_Value')
+    geo_data = geo_pcode.query_postal_code(postcode)
+
+    if isinstance(geo_data['county_name'], str):
+        return geo_data
+    else:
+        return None
+
+
+
+
+

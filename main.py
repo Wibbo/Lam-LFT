@@ -70,11 +70,13 @@ previous_appt = ''
 
 def create_appt(appt_row):
 
+
+
     postcode = th.format_postcode(appt_row['Postcode'], cfg.empty_field_default)
     geo_data_for_appoinment = geo_pcode.query_postal_code(postcode)
 
 
-    #a = geo_pcode.query_postal_code('SW22 2ET')
+    a = geo_pcode.query_postal_code('B645QQ')
     #b = geo_pcode.query_postal_code('SW2 2AU')
 
     # distance_from_test_centre = geo_dist.query_postal_code('B64 5QQ', 'DY2 0AJ')
@@ -98,12 +100,18 @@ def create_appt(appt_row):
 
     return appointment
 
-
-
-
 def update_appt(current_row, previous_row):
-    index = 0
+    """
+    Updates an appointment with details from the previous appointment.
+    This is because subsequent appointments
+    Args:
+        current_row ():
+        previous_row ():
 
+    Returns:
+
+    """
+    index = 0
 
     current_row[11] = th.get_test_outcome(current_row[11])
     # current_row[7] = th.format_postcode(current_row[7], cfg.empty_field_default)
@@ -111,6 +119,7 @@ def update_appt(current_row, previous_row):
 
     postcode = th.format_postcode(current_row[7], cfg.empty_field_default)
     geo_data_for_appoinment = geo_pcode.query_postal_code(postcode)
+
     current_row[14] = geo_data_for_appoinment['county_name']
 
     for col_value in current_row:
@@ -126,7 +135,7 @@ appt_count = 0
 current = None
 previous = None
 current_id =None
-previous_id = None
+previous_id = ''
 
 # Loop through every appointment.
 for index, row in data_file.iterrows():
@@ -134,23 +143,24 @@ for index, row in data_file.iterrows():
     current_id = row['Name'].lower()
     current = row
 
-    if appt_count == 0:
-        appt = create_appt(row)
-        final_list.append(appt)
+    # Since the appointments are in name order,
+    # multiple appointments will appear together.
+    if current_id == previous_id:
+        # This is the same person so update fields from first appointment.
+        appt = update_appt(current, previous)
     else:
-        if current_id == previous_id:
-            appt = update_appt(current, previous)
-        else:
-            appt = create_appt(current)
+        # This is a new person so create a new appointment.
+        appt = create_appt(current)
 
-        final_list.append(appt)
+    # Add details to the final appointments list.
+    final_list.append(appt)
 
     appt_count += 1
 
     previous = appt
     previous_id = current_id
 
-# Create a final csv file.
+# Create a final csv file containing all modified appointments.
 th.create_appt_csv_from_list('final', final_list)
 
 
